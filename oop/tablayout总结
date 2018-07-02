@@ -1,0 +1,43 @@
+1.tablayout.setupwithviewpager会把所有的tab都删除会导致tab的所有样式丢失
+    但是需要将加入tab的操作放在setupwithviewpager()前面，然后在次方法后面给
+    tab跟新样式或者加customview等操作，否者将拿不到原本的tab
+    下面例子中的顺序非常重要，不按照这种顺序将会导致样式和customview丢失
+    
+    <rep><code> for (int i = 0; i < tabs.size(); i++) {
+            fragments.add(NewsContentFragment.Companion.getInstance(tabs.get(i)));
+            mainTablayout.addTab(mainTablayout.newTab());
+        }
+        contentVp.setAdapter(new MainNewsViewPagerAdapter(this.getActivity().getSupportFragmentManager(), fragments, tabs));
+
+        //关联tabLayout和ViewPager,两者的选择和滑动状态会相互影响
+        mainTablayout.setupWithViewPager(contentVp);
+
+        mainTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                setTabSelected(tab);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+               setTabUnSelected(tab);
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                //todo 刷新数据
+            }
+
+        });
+
+        for (int i =0;i<mainTablayout.getTabCount();i++){
+            TabLayout.Tab tab = mainTablayout.getTabAt(i);
+            View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_tab,null);
+            tab.setText(tabs.get(i).getName());
+            tab.setCustomView(view);
+
+        }
+        mainTablayout.setScrollPosition(0,0,true);
+        contentVp.setCurrentItem(0);
+        setTabSelected(mainTablayout.getTabAt(0));</code></rep>
+2.去掉水波纹效果用的属性是app:tabBackground="@null"
